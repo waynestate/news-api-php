@@ -1,8 +1,8 @@
-<?php namespace Waynestate\News;
+<?php namespace Waynestate\Api;
 
 use Guzzle\Http\Client;
 
-class API {
+class News {
 
     /** @var  string */
     protected $developer_key;
