@@ -2,7 +2,8 @@
 
 use Guzzle\Http\Client;
 
-class News {
+class News
+{
 
     /** @var  string */
     protected $developer_key;
@@ -39,8 +40,7 @@ class News {
         $this->buffer_time = 60; // In Seconds
 
         // If there is an override for the endpoint
-        if(defined('NEWS_API_ENDPOINT'))
-        {
+        if (defined('NEWS_API_ENDPOINT')) {
             $this->endpoint = NEWS_API_ENDPOINT;
         }
 
@@ -54,20 +54,17 @@ class News {
     private function setup()
     {
         // Make sure we have a payload directory
-        if($this->payload_dir == '')
-        {
+        if ($this->payload_dir == '') {
             return false;
         }
 
         // Create the directories
-        if(!is_dir($this->payload_dir))
-        {
+        if (!is_dir($this->payload_dir)) {
             mkdir($this->payload_dir, 0775, true);
         }
 
         // Create the payload file
-        if(!is_file($this->payload_file))
-        {
+        if (!is_file($this->payload_file)) {
             file_put_contents($this->payload_file, '');
         }
     }
@@ -83,8 +80,7 @@ class News {
         $payload = $this->getPayloadFromCache();
 
         // Check if the token is expired
-        if(!isset($payload['exp']) || strtotime(date("Y-m-d H:i:s")) >= ($payload['exp'] - $this->buffer_time))
-        {
+        if (!isset($payload['exp']) || strtotime(date("Y-m-d H:i:s")) >= ($payload['exp'] - $this->buffer_time)) {
             // Get a new payload
             $payload = $this->getPayload();
 
@@ -124,7 +120,7 @@ class News {
 
         $response = $request->send();
 
-        if($response->isSuccessful()){
+        if ($response->isSuccessful()) {
             $payload_response = $response->json();
             $payload = $payload_response['data'];
 
@@ -155,23 +151,28 @@ class News {
     public function request($method = '', $params = array())
     {
         // Verify the token
-        if(!$this->verify())
-        {
+        if (!$this->verify()) {
             // Invalid token
             return false;
         }
 
+        // If they pass an ID, convert it to be part of the endpoint instead
+        if (isset($params['id'])) {
+            $method .= (substr($method, -1) != '/' ? '/' : '') . $params['id'];
+        }
+
         // Build the request with the token
-        $request = $this->client->get($this->endpoint . $method, array('Authorization' => 'Bearer: ' . $this->payload['token']), array(
-            'query' => $params,
-            'verify' => false
-        ));
+        $request = $this->client->get($this->endpoint . $method,
+            array('Authorization' => 'Bearer: ' . $this->payload['token']), array(
+                'query' => $params,
+                'verify' => false
+            ));
 
         // Send the request
         $response = $request->send();
 
         // If successful return the request
-        if($response->isSuccessful()){
+        if ($response->isSuccessful()) {
             $request_response = $response->json();
             $request = $request_response['data'];
 
@@ -181,4 +182,3 @@ class News {
         return false;
     }
 }
-?>
