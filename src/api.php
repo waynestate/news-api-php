@@ -169,12 +169,24 @@ class News
             ));
 
         // Send the request
-        $response = $request->send();
+        try {
+            $response = $request->send();
+        } catch (\Guzzle\Http\Exception\ClientErrorResponseException $e) {
+            echo 'Guzzle Error: ' . $e->getMessage();
+        }
 
         // If successful return the request
         if ($response->isSuccessful()) {
             $request_response = $response->json();
-            $request = $request_response['data'];
+
+            // Check for errors
+            if (isset($request_response['errors'])) {
+                // Set the error response
+                $request = $request_response;
+            } else {
+                // Set the data response
+                $request = $request_response['data'];
+            }
 
             return $request;
         }
