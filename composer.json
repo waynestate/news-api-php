@@ -1,7 +1,7 @@
 {
     "name": "waynestate/news-api-php",
     "description": "Connector for News API",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "license": "MIT",
     "authors": [
         {
@@ -12,7 +12,7 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4":{
-            "Waynestate\\News\\":"src"
+            "Waynestate\\Api\\":"src"
         }
     },
     "require": {
