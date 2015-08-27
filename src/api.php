@@ -185,7 +185,7 @@ class News
                 $request = $request_response;
             } else {
                 // Set the data response
-                $request = $request_response['data'];
+                $request = $request_response;
             }
 
             return $request;
