@@ -60,7 +60,7 @@ class News
 
         // Create the directories
         if (!is_dir($this->payload_dir)) {
-            mkdir($this->payload_dir, 0775, true);
+            mkdir($this->payload_dir, 02770, true);
         }
 
         // Create the payload file
