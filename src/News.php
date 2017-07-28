@@ -30,9 +30,9 @@ class News
     /**
      * @param $developer_key
      */
-    public function __construct($developer_key)
+    public function __construct()
     {
-        $this->developer_key = $developer_key;
+        $this->developer_key = getenv('NEWS_API_KEY');
         $this->endpoint = 'https://news.wayne.edu/api/v1/';
         $this->payload_dir = getenv('NEWS_API_CACHE');
         $this->payload_file = $this->payload_dir . 'payload.json';
