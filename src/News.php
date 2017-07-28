@@ -1,6 +1,7 @@
 <?php namespace Waynestate\Api;
 
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\TransferException;
 
 class News
 {
@@ -33,15 +34,15 @@ class News
     {
         $this->developer_key = $developer_key;
         $this->endpoint = 'https://news.wayne.edu/api/v1/';
-        $this->payload_dir = NEWS_API_CACHE;
+        $this->payload_dir = getenv('NEWS_API_CACHE');
         $this->payload_file = $this->payload_dir . 'payload.json';
         $this->client = new Client();
-        $this->payload = array();
+        $this->payload = [];
         $this->buffer_time = 60; // In Seconds
 
         // If there is an override for the endpoint
-        if (defined('NEWS_API_ENDPOINT')) {
-            $this->endpoint = NEWS_API_ENDPOINT;
+        if (getenv('NEWS_API_ENDPOINT') != '') {
+            $this->endpoint = getenv('NEWS_API_ENDPOINT');
         }
 
         // Make sure we have a token cache file
@@ -60,7 +61,7 @@ class News
 
         // Create the directories
         if (!is_dir($this->payload_dir)) {
-            mkdir($this->payload_dir, 0775, true);
+            mkdir($this->payload_dir, 02770, true);
         }
 
         // Create the payload file
@@ -111,17 +112,15 @@ class News
      */
     private function getPayload()
     {
-        $request = $this->client->get($this->endpoint . 'auth/token/', array(), array(
-            'query' => array(
+        $response = $this->client->request('GET', $this->endpoint . 'auth/token/', [
+            'query' => [
                 'developer_key' => $this->developer_key
-            ),
+            ],
             'verify' => false
-        ));
+        ]);
 
-        $response = $request->send();
-
-        if ($response->isSuccessful()) {
-            $payload_response = $response->json();
+        if ($response->getStatusCode() == 200) {
+            $payload_response = json_decode($response->getBody()->getContents(), true);
             $payload = $payload_response['data'];
 
             return $payload;
@@ -161,23 +160,22 @@ class News
             $method .= (substr($method, -1) != '/' ? '/' : '') . $params['id'];
         }
 
-        // Build the request with the token
-        $request = $this->client->get($this->endpoint . $method,
-            array('Authorization' => 'Bearer: ' . $this->payload['token']), array(
-                'query' => $params,
-                'verify' => false
-            ));
-
         // Send the request
         try {
-            $response = $request->send();
-        } catch (\Guzzle\Http\Exception\ClientErrorResponseException $e) {
+            $response = $this->client->request('GET', $this->endpoint . $method, [
+                'headers' => [
+                    'Authorization' => 'Bearer: ' . $this->payload['token']
+                ],
+                'query' => $params,
+                'verify' => false
+            ]);
+        } catch (TransferException $e) {
             echo 'Guzzle Error: ' . $e->getMessage();
         }
 
         // If successful return the request
-        if ($response->isSuccessful()) {
-            $request_response = $response->json();
+        if ($response->getStatusCode() == 200) {
+            $request_response = json_decode($response->getBody()->getContents(), true);
 
             // Check for errors
             if (isset($request_response['errors'])) {
