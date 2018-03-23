@@ -172,7 +172,7 @@ class News
         try {
             $response = $request->send();
         } catch (\Guzzle\Http\Exception\ClientErrorResponseException $e) {
-            echo 'Guzzle Error: ' . $e->getMessage();
+            return false;
         }
 
         // If successful return the request
