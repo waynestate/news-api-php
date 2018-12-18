@@ -164,7 +164,7 @@ class News
         try {
             $response = $this->client->request('GET', $this->endpoint . $method, [
                 'headers' => [
-                    'Authorization' => 'Bearer: ' . $this->payload['token']
+                    'Authorization' => 'Bearer ' . $this->payload['token']
                 ],
                 'query' => $params,
                 'verify' => false
