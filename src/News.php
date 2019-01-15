@@ -80,8 +80,14 @@ class News
         // Read in the cached payload
         $payload = $this->getPayloadFromCache();
 
-        // Check if the token is expired
-        if (!isset($payload['exp']) || strtotime(date("Y-m-d H:i:s")) >= ($payload['exp'] - $this->buffer_time)) {
+        // Add auth/token onto the end of the endpoint to verify that it matches the payload cache
+        $test_endpoint = $this->endpoint.(substr($this->endpoint, -1, 1) != '/' ? '/' : '').'auth/token';
+
+        // Check if the token is expired or if the endpoint changed
+        if (
+            (!isset($payload['exp']) || strtotime(date("Y-m-d H:i:s")) >= ($payload['exp'] - $this->buffer_time)) ||
+            strcasecmp($payload['iss'], $test_endpoint) !== 0
+        ) {
             // Get a new payload
             $payload = $this->getPayload();
 
