@@ -89,10 +89,16 @@ class News
             strcasecmp($payload['iss'], $test_endpoint) !== 0
         ) {
             // Get a new payload
-            $payload = $this->getPayload();
+            try {
+                $payload = $this->getPayload();
+            } catch (TransferException $e) {
+                echo 'Guzzle Error: ' . $e->getMessage();
+            }
 
             // Write payload to cache
-            $this->writePayloadToCache($payload);
+            if (!empty($payload)) {
+                $this->writePayloadToCache($payload);
+            }
         }
 
         // Set the payload
@@ -127,6 +133,11 @@ class News
 
         if ($response->getStatusCode() == 200) {
             $payload_response = json_decode($response->getBody()->getContents(), true);
+
+            if (isset($payload_response['errors'])) {
+                throw new Exception($payload_response['errors']);
+            }
+
             $payload = $payload_response['data'];
 
             return $payload;
