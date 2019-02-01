@@ -1,7 +1,7 @@
 {
     "name": "waynestate/news-api-php",
     "description": "Connector for News API",
-    "version": "1.0.3",
+    "version": "1.0.5",
     "license": "MIT",
     "authors": [
         {
