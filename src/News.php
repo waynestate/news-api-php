@@ -32,21 +32,47 @@ class News
      */
     public function __construct()
     {
-        $this->developer_key = getenv('NEWS_API_KEY');
+        $envVariables = $this->getEnvVariables();
+
+        $this->developer_key = $envVariables['NEWS_API_KEY'];
         $this->endpoint = 'https://news.wayne.edu/api/v1/';
-        $this->payload_dir = getenv('NEWS_API_CACHE');
+        $this->payload_dir = $envVariables['NEWS_API_CACHE'];
         $this->payload_file = $this->payload_dir . 'payload.json';
         $this->client = new Client();
         $this->payload = [];
         $this->buffer_time = 60; // In Seconds
 
         // If there is an override for the endpoint
-        if (getenv('NEWS_API_ENDPOINT') != '') {
-            $this->endpoint = getenv('NEWS_API_ENDPOINT');
+        if (!empty($envVariables['NEWS_API_ENDPOINT'])) {
+            $this->endpoint = $envVariables['NEWS_API_ENDPOINT'];
         }
 
         // Make sure we have a token cache file
         $this->setup();
+    }
+
+    /**
+     * Get the Environment Variables
+     *
+     * If the Laravel Helper function env is available then use it, otherwise getenv
+     *
+     * @return array
+     */
+    private function getEnvVariables()
+    {
+        if(function_exists('env')){
+            return [
+                'NEWS_API_KEY' => env('NEWS_API_KEY'),
+                'NEWS_API_CACHE' => env('NEWS_API_CACHE'),
+                'NEWS_API_ENDPOINT' => env('NEWS_API_ENDPOINT'),
+            ];
+        }
+
+        return [
+            'NEWS_API_KEY' => getenv('NEWS_API_KEY'),
+            'NEWS_API_CACHE' => getenv('NEWS_API_CACHE'),
+            'NEWS_API_ENDPOINT' => getenv('NEWS_API_ENDPOINT'),
+        ];
     }
 
     /**
