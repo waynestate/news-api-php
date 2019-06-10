@@ -161,7 +161,9 @@ class News
             $payload_response = json_decode($response->getBody()->getContents(), true);
 
             if (isset($payload_response['errors'])) {
-                throw new Exception($payload_response['errors']);
+                $error = current($payload_response['errors']);
+
+                throw new \Exception($error['message'], $error['code']);
             }
 
             $payload = $payload_response['data'];
