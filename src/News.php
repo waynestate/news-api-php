@@ -118,9 +118,9 @@ class News
             try {
                 $payload = $this->getPayload();
             } catch (TransferException $e) {
-                throw new $e($e->getMessage());
+                throw $e;
             } catch(\Exception $e) {
-                throw new $e($e->getMessage());
+                throw $e;
             }
 
             // Write payload to cache
@@ -215,7 +215,7 @@ class News
                 'verify' => false
             ]);
         } catch (TransferException $e) {
-            error_log($e->getMessage(), 0);
+            throw $e;
         }
 
         // If successful return the request
