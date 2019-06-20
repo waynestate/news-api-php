@@ -5,7 +5,6 @@ use GuzzleHttp\Exception\TransferException;
 
 class News
 {
-
     /** @var  string */
     protected $developer_key;
 
@@ -93,6 +92,7 @@ class News
         // Create the payload file
         if (!is_file($this->payload_file)) {
             file_put_contents($this->payload_file, '');
+            chmod($this->payload_file, 02770);
         }
     }
 
@@ -118,7 +118,9 @@ class News
             try {
                 $payload = $this->getPayload();
             } catch (TransferException $e) {
-                echo 'Guzzle Error: ' . $e->getMessage();
+                error_log($e->getMessage(), 0);
+            } catch(\Exception $e) {
+                error_log($e->getMessage(), 0);
             }
 
             // Write payload to cache
@@ -161,9 +163,7 @@ class News
             $payload_response = json_decode($response->getBody()->getContents(), true);
 
             if (isset($payload_response['errors'])) {
-                $error = current($payload_response['errors']);
-
-                throw new \Exception($error['message'], $error['code']);
+                throw new \Exception(print_r($payload_response['errors'], true));
             }
 
             $payload = $payload_response['data'];
@@ -215,7 +215,7 @@ class News
                 'verify' => false
             ]);
         } catch (TransferException $e) {
-            echo 'Guzzle Error: ' . $e->getMessage();
+            error_log($e->getMessage(), 0);
         }
 
         // If successful return the request
@@ -224,14 +224,10 @@ class News
 
             // Check for errors
             if (isset($request_response['errors'])) {
-                // Set the error response
-                $request = $request_response;
-            } else {
-                // Set the data response
-                $request = $request_response;
+                error_log(print_r($request_response['errors'], true), 0);
             }
 
-            return $request;
+            return $request_response;
         }
 
         return false;
