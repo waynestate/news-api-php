@@ -118,9 +118,9 @@ class News
             try {
                 $payload = $this->getPayload();
             } catch (TransferException $e) {
-                error_log($e->getMessage(), 0);
+                throw new $e($e->getMessage());
             } catch(\Exception $e) {
-                error_log($e->getMessage(), 0);
+                throw new $e($e->getMessage());
             }
 
             // Write payload to cache
