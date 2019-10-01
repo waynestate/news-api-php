@@ -30,6 +30,6 @@ class NewsServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/waynestatenews.php' => config_path('waynestatenews.php'),
-        ], 'image-faker');
+        ], 'waynestatenews');
     }
 }
