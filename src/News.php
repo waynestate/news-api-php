@@ -5,6 +5,9 @@ use GuzzleHttp\Exception\TransferException;
 
 class News
 {
+    /** @var  array */
+    protected $config;
+
     /** @var  string */
     protected $developer_key;
 
@@ -29,48 +32,32 @@ class News
     /**
      * @param $developer_key
      */
-    public function __construct()
+    public function __construct($config = [])
     {
-        $envVariables = $this->getEnvVariables();
-
-        $this->developer_key = $envVariables['NEWS_API_KEY'];
-        $this->endpoint = 'https://news.wayne.edu/api/v1/';
-        $this->payload_dir = $envVariables['NEWS_API_CACHE'];
+        $this->config = !empty($config) ? $config : $this->getEnvVariables();
+        $this->developer_key = $this->config['key'];
+        $this->endpoint = !empty($this->config['endpoint']) ? $this->config['endpoint'] : 'https://news.wayne.edu/api/v1/';
+        $this->payload_dir = $this->config['cache'];
         $this->payload_file = $this->payload_dir . 'payload.json';
         $this->client = new Client();
         $this->payload = [];
         $this->buffer_time = 60; // In Seconds
-
-        // If there is an override for the endpoint
-        if (!empty($envVariables['NEWS_API_ENDPOINT'])) {
-            $this->endpoint = $envVariables['NEWS_API_ENDPOINT'];
-        }
 
         // Make sure we have a token cache file
         $this->setup();
     }
 
     /**
-     * Get the Environment Variables
-     *
-     * If the Laravel Helper function env is available then use it, otherwise getenv
+     * Fallback for getting the environment variables.
      *
      * @return array
      */
     private function getEnvVariables()
     {
-        if(function_exists('env')){
-            return [
-                'NEWS_API_KEY' => env('NEWS_API_KEY'),
-                'NEWS_API_CACHE' => env('NEWS_API_CACHE'),
-                'NEWS_API_ENDPOINT' => env('NEWS_API_ENDPOINT'),
-            ];
-        }
-
         return [
-            'NEWS_API_KEY' => getenv('NEWS_API_KEY'),
-            'NEWS_API_CACHE' => getenv('NEWS_API_CACHE'),
-            'NEWS_API_ENDPOINT' => getenv('NEWS_API_ENDPOINT'),
+            'key' => getenv('NEWS_API_KEY'),
+            'cache' => getenv('NEWS_API_CACHE'),
+            'endpoint' => getenv('NEWS_API_ENDPOINT'),
         ];
     }
 
